@@ -35,14 +35,11 @@ setwd("C:/Users/lunardel/Downloads")
 source("Script_SICCS.R")
 
 ## Transform coordinates to work with leaflet
-# make sure geometry is active
 st_geometry(PC4_codes) <- "geom"
 
-# transform to WGS84 (required for Leaflet)
-PC4_codes <- st_transform(PC4_codes, 4326)
-
-# verify
-st_crs(PC4_codes)
+if (st_crs(PC4_codes)$epsg != 4326) {
+  PC4_codes <- st_transform(PC4_codes, 4326)
+}
 
 # Columns that can be mapped
 score_vars <- c("lbm", "afw", "fys", "onv", "soc", "vrz", "won")
@@ -72,10 +69,21 @@ ui <- fluidPage(
 server <- function(input, output, session) {
   
   output$map <- renderLeaflet({
-    leaflet(PC4_codes) %>%
-      addTiles() %>%
+    
+    bb <- st_bbox(PC4_codes)
+    
+    leaflet() %>%
+      addProviderTiles(providers$CartoDB.Positron) %>%
+      fitBounds(
+        lng1 = as.numeric(bb["xmin"]),
+        lat1 = as.numeric(bb["ymin"]),
+        lng2 = as.numeric(bb["xmax"]),
+        lat2 = as.numeric(bb["ymax"])
+      ) %>%
       addPolygons(
-        layerId = ~gm_naam,
+        data = PC4_codes,
+        layerId = ~PC4_codes,
+        fillOpacity = 0.8,
         weight = 1,
         color = "white"
       )
@@ -85,23 +93,35 @@ server <- function(input, output, session) {
     
     req(input$score)
     
-    vals <- PC4_codes[[input$score]]
+    vals <- round(PC4_codes[[input$score]],2)
     
-    pal <- colorNumeric("viridis", domain = vals)
+    pal <- colorNumeric(
+      palette = "viridis",
+      domain = vals,
+      na.color = "transparent"
+    )
+    
+    labels <- paste0(
+      "<b>PC4:</b> ", PC4_codes$PC4,
+      "<br><b>Municipality:</b> ", PC4_codes$gm_naam,
+      "<br><b>", input$score, ":</b> ", vals
+    ) |> lapply(htmltools::HTML)
     
     leafletProxy("map", data = PC4_codes) %>%
       clearShapes() %>%
       clearControls() %>%
+      
       addPolygons(
         fillColor = pal(vals),
         fillOpacity = 0.8,
         color = "white",
         weight = 1,
-        layerId = ~gm_naam,
-        label = ~gm_naam
+        layerId = ~PC4,
+        label = labels
       ) %>%
+      
       addLegend(
-        "bottomright",
+        position = "bottomright",
         pal = pal,
         values = vals,
         title = input$score
