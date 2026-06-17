@@ -1,3 +1,15 @@
+### Set working directory
+
+setwd("C:/Users/lunardel/Downloads")
+
+### Install renv (if not already available)
+if (!requireNamespace("renv", quietly = TRUE)) {
+    install.packages("renv")}
+# load renv()
+library(renv)
+# activate environment
+renv::init()
+
 ### Install packages if not already installed
 if (!requireNamespace("sf", quietly = TRUE)) {
   install.packages("sf")
@@ -8,24 +20,21 @@ if (!requireNamespace("dplyr", quietly = TRUE)) {
 if (!requireNamespace("ggplot2", quietly = TRUE)) {
   install.packages("ggplot2")
 }
-if (!requireNamespace("renv", quietly = TRUE)) {
-  install.packages("renv")
-}
 
-### Load libraries
+# Load packages
 library(sf)
 library(dplyr)
 library(ggplot2)
 
-### Set working directory
-
-setwd("C:/Users/lunardel/Downloads")
+# Record the exact package versions
+renv::snapshot()
 
 ### Read the data
 
 # write path to data
 path <- "data/geometrie-lbm3-2024/PC4 2024.gpkg"
 
+# get layers
 layers <- st_read(path)
 
 # read the score file, we can derive the scores from year 2002 to 2024
@@ -92,6 +101,7 @@ missing_codes_gemeente <- PC4_codes[is.na(PC4_codes$lbm),]$gm_naam #gemeente of 
 ########################################################
 ## Rescale scores to 1-100
 
+# they all have same direction
 PC4_codes <- PC4_codes %>%
   mutate(lbm = 1 + (lbm - min(lbm, na.rm = TRUE)) /
            (max(lbm, na.rm = TRUE) - min(lbm, na.rm = TRUE)) * 99, #lbm
@@ -157,3 +167,19 @@ ggplot(PC4_codes) +
 
 
 ####################################
+
+# get municipality geometry from grouping pc4
+PC4_codes2 <- st_make_valid(PC4_codes)
+PC4_codes2 <- st_buffer(PC4_codes2, 0)
+muni_sf <- PC4_codes2 %>%
+  st_make_valid() %>%
+  group_by(gm_naam) %>%
+  summarise(geometry = st_union(geom), .groups = "drop")
+
+# trim names, in order to have consistent names 
+PC4_codes$gm_naam <- trimws(as.character(PC4_codes$gm_naam))
+muni_sf$gm_naam   <- trimws(as.character(muni_sf$gm_naam))
+
+# change to Leaflet standard
+muni_sf   <- st_transform(muni_sf, 4326)
+
