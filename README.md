@@ -1,5 +1,29 @@
 # LIVING-SICCS
 
+## Step by step guide to run the script
+In order to reproduce the analysis, researchers can run the scripts in the Living-SICCS repository in the following order:
+0. download the project to ensure the right packages are used;
+1. Script_SICCS.R this script explores the score variables from Leefbarometer and creates datasets that are used later for the creation of the Shiny app;
+2. add here;
+3. add here;
+4. add here;
+5. app.R this script creates a Shiny app that displays both the scores from the Leefbarometer and the results from our analysis.
+
+## Leefbarometer data exploration
+The Leefbarometer data provides scores for livability in the Netherlands. The data is pubicly available here: https://www.leefbaarometer.nl/page/Opendata#scores.
+We chose to work with the 2024 data. Both geospatial data and data about the livability scores were downloaded. In particular, we decided to work with PC4 level geospatial geometry. Gemeente level geospatial data was also imported in order to then provide nicer overview in the Shiny app, but it is not used in the analysis.
+Exploration of the score variables has been done with summaries and plots. Scores have been rescaled to 0-100 values, in order to improve understandability. Scores data and PC4 geometries have been merged in order to conduct the analysis, whereas PC4 data and Gemeente has been linked for shiny app visualizations.
+Available variables:
+- PC4 geometries;
+- livability score;
+- difference from national average score;
+- security;
+- amenities;
+- social cohesion;
+- phisical environment;
+- housing stock;
+- Gemeente geometry.
+
 ## LISS data preparation 
 To explore people's perception of liveability, we attempt to match variables from LISS Core Studies data to dimensions of Liveability Score. 
 
@@ -25,4 +49,25 @@ The preprocessing of the data included the following steps:
 2) Assigning meaningful names to the variables and adding indicators for dimensions at the beginning of the variable names: ENV_ for environment, HOUS_ for housing, AMEN_ for amenities, SOC_ for social cohesion, SAF_ for safety.
 3) Matching the data to PC6 and deriving PC4 out of PC6 data for consistency puposes across datasets and as PS4 is a good compromise between detailed and not too sensitive.
 4) Recoding the variables (reducing number of categories for some variables for computational purposes, reverse-coding negatively phrased items to assign higher value to responses that align with higher livability, recoding -9/-8 values into NAs).
-5) Aggregating all data on PS4 level: means for binary/likert-scale questions, modes for categorical variables to select the most frequent category in a neighbourhood. 
+5) Aggregating all data on PS4 level: means for binary/likert-scale questions, modes for categorical variables to select the most frequent category in a neighbourhood.
+
+
+
+
+
+
+## License
+Copyright [2026] [Gilazh, Leitritz, Lunardelli]
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
