@@ -52,8 +52,12 @@ The preprocessing of the data included the following steps:
 5) Aggregating all data on PS4 level: means for binary/likert-scale questions, modes for categorical variables to select the most frequent category in a neighbourhood.
 
 
-
-
+## Shiny App
+We created a Shiny app in order to visualize both the livability scores from the Leefbarometer (2024) and our prdicted scores at the PC4 level.
+The app has some features to maximaze usefullness of the dashboard, in particular the following:
+- interchangeable scores: on the left sidebar we can change the score we want to visualize (final score or subdimensions);
+- geographical levels: again on the left sidebar there is the opportunity to vizualise scores for the whole country or select just one municipality. This will ensure readability. If a specific municipality is chosen (being by clicking on it or typing it), the PC4 areas that don't belong to the specific municipality will turn gray.
+- PC4 info: by dragging the mouse on a specific PC4 area, a pop up legend will show the PC4 code, the municipality it belongs to and the livability score, rounded to the second decimal.
 
 
 ## License
