@@ -1,5 +1,5 @@
 
-setwd("C:/Users/lunardel/Downloads")
+# setwd("C:/Users/lunardel/Downloads")
 
 ### Install renv (if not already available)
 if (!requireNamespace("renv", quietly = TRUE)) {
@@ -35,16 +35,16 @@ renv::snapshot()
 ### Read the data
 
 # write path to data
-path <- "data/geometrie-lbm3-2024/PC4 2024.gpkg"
+path_layers <- "data/liv_2024/geometrie-lbm3-2024/PC4 2024.gpkg"
 
 # get layers
-layers <- st_read(path)
+layers <- st_read(path_layers)
 
 # read the score file, we can derive the scores from year 2002 to 2024
-scores <- read.csv("data2/Leefbaarometer 3.0 - Meting 2024 - open data/Leefbaarometer-scores PC4 2002-2024.csv")
+scores <- read.csv("data/liv_2024/Leefbaarometer 3.0 - Meting 2024 - open data/Leefbaarometer-scores PC4 2002-2024.csv")
 
 # read the development file, we can derive the difference in scores across years
-development <- read.csv("data2/Leefbaarometer 3.0 - Meting 2024 - open data/Leefbaarometer-ontwikkeling PC4 2002-2024.csv")
+development <- read.csv("data/liv_2024/Leefbaarometer 3.0 - Meting 2024 - open data/Leefbaarometer-ontwikkeling PC4 2002-2024.csv")
 
 #########################
 ## Data cleaning
@@ -188,12 +188,12 @@ muni_sf   <- st_transform(muni_sf, 4326)
 
 
 ######################################
-# save dataset
+# save dataset to be re-loaded later in ML script
 
-#PC4_codes
-write_xlsx(PC4_codes[,-15], path = "C:/Users/lunardel/Downloads")
+#PC4_codes, removing geom column
+write.csv(PC4_codes[,-15], file = here::here("data", "liv_2024", "liv_scores_transformed_pc4.csv"))
 
 #municipalities
 #write_xlsx(muni_sf, path = "C:/Users/lunardel/Downloads")
-
+write.csv(muni_sf, file = here::here("data", "liv_2024", "municipalities_livability.csv"))
 
