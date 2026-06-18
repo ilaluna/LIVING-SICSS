@@ -48,8 +48,14 @@ setwd("C:/Users/lunardel/Downloads")
 
 ## Read data
 # scores
-PC4_codes <- readxl("PC4_codes.xlsx")
-muni_sf <- readxl("muni.xlsx")
+#PC4_codes <- readxl("PC4_codes.xlsx")
+#muni_sf <- readxl("muni.xlsx")
+#path <- "data/geometrie-lbm3-2024/PC4 2024.gpkg"
+
+# get layers
+#layers <- st_read(path)
+#PC4_codes <- PC4_codes %>% left_join(layers, by = PC4)
+
 
 # predictions
 enet_ob <- read_csv("predictions_enet_objective_data_pc4.csv")
