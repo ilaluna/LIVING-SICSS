@@ -61,6 +61,9 @@ The preprocessing of the data included the following steps:
 4) Recoding the variables (reducing number of categories for some variables for computational purposes, reverse-coding negatively phrased items to assign higher value to responses that align with higher livability, recoding -9/-8 values into NAs).
 5) Aggregating all data on PS4 level: means for binary/likert-scale questions, modes for categorical variables to select the most frequent category in a neighbourhood.
 
+## Matching dimensions document
+In this excel file we have written down the dimensions of the official livability score and we have linked the survey data to each dimension. These variables are the ones that we used in the predictive models.
+
 ## EXPOSOME data
 The EXPOSOME data offers a wide variety of variables measuring environmental dimensions such as pollution, biodiversity and light intensity. We used the #### year ### wave ### version of the dataset. In the R script, we conducted a preprocessing step in order to have the variables in the correct form for the predictive models.
 
@@ -68,6 +71,9 @@ The EXPOSOME data offers a wide variety of variables measuring environmental dim
 ## FIRMBAKBONE data
 This dataset, also accessible through SANE, covers a wide range of topics. In particular, we used ***** from ## year ## wave## and the InnovatieSpotter from ## year ## wave##, which covers topics about innovation in industries and environmental data. This data is linkable to PC4 geospatial level.
 The Firmbackbone data has been preprocessed in R and particularly variables have been rescaled due to skeweness to then fit the predictive model.
+
+## Models
+
 
 ## Shiny App
 We created a Shiny app in order to visualize both the livability scores from the Leefbarometer (2024) and our prdicted scores at the PC4 level.
