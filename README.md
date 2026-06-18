@@ -7,11 +7,12 @@ https://doi.org/10.5281/zenodo.20746330
 In order to reproduce the analysis, researchers can run the scripts in the Living-SICSS repository in the following order:
 
 0. download the project to ensure the right packages are used and get the data from https://www.leefbaarometer.nl/page/Opendata#score and the ODISSEI Safe Environment;
-1. Script_Leefbarometer.R: this script explores the score variables from Leefbarometer and creates datasets that are used later for the creation of the Shiny app;
+1. 01_exp_transf_liv_pc4.R: this script explores the score variables from Leefbarometer from 2024 and creates the PC4 scores that are used later for the creation of the Shiny app and as outcome of the machine learning models;
 2. Script_LISS_datapreparation: this script extract the survey variables that match the livability score dimensions and provides insights to people's perception of livability;
-3. Script_DataInnovationSpotter: this script explores the data about innovative industries and the impact to the territory;
-4. Script_Modeling: this script train and test two dinstinct ML models to predict official livability scores. The first model uses "objective" environmental dimensions coming from the different registers, whereas the second model uses the survey data to predict the official scores;
-5. app.R: this script creates a Shiny app that displays both the scores from the Leefbarometer and the results from our analysis.
+3. 02_data_exploration_agg_innovation_spotter.R: this script explores the data about innovative industries and the impact to the area where those companies were settled in Q1 2026;
+4. 03_geo_analysis_exposome_liv.ipynb: This Python notebook extracts the geocoded (.tif files) information from the Exposome data and the administrative- demographic variables that are contained in the early 2025 CBS edited dataset containining the PC6 codes in the Netherlands. Data are subsequently aggregated to PC4 level to merge them with the livability scores
+5. 04_machine_learning_models_livability_pc4: this script preprocesses all input data, then trains and validates elastic net regression and random forest machine learning models to predict the "official" livability scores. The first class of models model uses "objective" environmental dimensions (Aggregated ad-hoc indicators from InnovatieSpotter from FIRMBACKBONE, created in script 02 together with the extracted administrative-demographic data and EXPOSOME data, whereas the second class of models uses indicators from the LISS panel data that inform about the respondents' lived experiences of their living situation to predict the official scores
+6. app.R: this script creates a Shiny app that displays both the scores from the Leefbarometer and the results from our analysis.
 
 ## Data availability
 the Leefbarometer data in openly available at https://www.leefbaarometer.nl/page/Opendata#score, whereas the other datasets are available in the SANE Secure Environment of ODISSEI. To access this data files contact info@odissei-data.nl.
@@ -23,7 +24,7 @@ the Leefbarometer data in openly available at https://www.leefbaarometer.nl/page
 - R Studio version 4.6 (for Shiny Dashboard)
 - Python 3.8 (for geospational analysis)
 
-### Packages
+### Packages (R)
 dplyr 1.2.1;
 ggplot2 4.0.3;
 leaflet 2.2.3;
@@ -42,6 +43,18 @@ here 1.0.2;
 arrow 24.0.0;
 caret 7.0-1;
 doParallel 1.0.17
+
+### Modules (python)
+In order to make the python script that extracts the geocoded exposome data run, first install the necessary modules with pip install <module-name>
+The modules used are:
+
+pathlib
+pandas
+geopandas
+rasterio
+matplotlib
+os
+numpy
 
 ## Leefbarometer data 
 The Leefbarometer data provides scores for livability in the Netherlands. The data is pubicly available here: https://www.leefbaarometer.nl/page/Opendata#scores.
@@ -95,14 +108,61 @@ The preprocessing of the data included the following steps:
 In this excel file we have written down the dimensions of the official livability score and we have linked the survey data to each dimension. These variables are the ones that we used in the predictive models.
 
 ## EXPOSOME data
-The EXPOSOME data offers a wide variety of variables measuring environmental dimensions such as pollution, biodiversity and light intensity. We used the #### year ### wave ### version of the dataset. In the R script, we conducted a preprocessing step in order to have the variables in the correct form for the predictive models.
+The EXPOSOME data offers a wide variety of variables measuring environmental dimensions such as pollution, biodiversity and light intensity. 
+Whenever multiple years were available, we used the one most adjacent to the year of the livability scores (2024). The exposures are described in more detail in the 
+python script (03_geo_analysis_exposome_liv.ipynb)
+
+The following exposures were extracted:
+- NO2 exposure mean average in 2023 per PC4
+- Access to different kinds of food
+- Light exposure at night (2020, within buffer of 300, 500 and 1000m)
+- (here add rest!)
 
 
 ## FIRMBAKBONE data
-This dataset, also accessible through SANE, covers a wide range of topics. In particular, we used ***** from ## year ## wave## and the InnovatieSpotter from ## year ## wave##, which covers topics about innovation in industries and environmental data. This data is linkable to PC4 geospatial level.
-The Firmbackbone data has been preprocessed in R and particularly variables have been rescaled due to skeweness to then fit the predictive model.
+This dataset, also accessible through SANE, covers a wide range of topics. In particular, we used the InnovatieSpotter data from Q1 2026, which covers topics about innovation in industries and environmental data. This data is aggregated at PC4 level as well.
+The Firmbackbone data has been preprocessed in R and some skewed count and sum variables have been log transformed to avoid distribution based issues in the machine learning modeling
 
-## Models
+## Machine lerning modelling
+All variable sets were used as input for machine learning 
+We carried out the following preprocessing steps:
+- normalize all numeric variables (except for the ones from the InnovatieSpotter dataset)
+- one-hot encode all categorical variables
+- remove variables with very low variance
+- remove variables that are highly correlated with other variables
+- median impute missing values
+
+We created 2 different variables sets to train our models on: 
+1) "Objective predictors": EXPOSOME features, administrative-demographic features and aggregated variables from the InnovatieSpotter data
+2) "Subjective predictors": variables from the LISS panel that contain information about the living situation of the participants
+
+On both feature sets, we carried out the preprocessing steps named above and then trained an elastic net (Nogueira et al., 2018, Tay et al., 2023) and a random forest (Breiman, 2001) model. 
+
+Elastic net is a Regularized regression technique that can be used to deal with problems of multicollinearity and overfitting thus advisable for high-dimensional datasets
+it is  a linear regression algorithm that adds two penalty terms to least-squares
+containing an objective function (L1 and L2 norm of coefficient vector multiplied by hyperparameters lambda and alpha)
+L1: feature selection
+L2: feature shrinkage
+
+Hyperparameters tuned: 
+- lambda: regularization parameter 
+(when > 0, elastic net penalty kicks in, we shrink parameters)
+- alpha: mixing parameter between L1 and L2 norms (penalty)
+
+random forest is more flexible, decision-tree based and can also accomodate non-linearities
+Hyperparameters tuned :
+-	mtry: number of features that are available to be considered at each split. 
+-	min.node.size: Minimum number of samples required to split a node 
+- Splitrule (more variance or extratrees)
+
+  We created a 80-20 train test split in both feature sets before modelling where we ensured that the distribution of the livability scores
+  was comparable in both splits. We trained the model using 5 fold cross-validation on the training set and calculated training and test error. Since the outcome was continuous (livability scores, transformed to a 0-100 scale), we calculated RMSE and MAE as outcome values
+
+  The files plot_MAE.png and plot_RMSE.png visualize model performance depedent on variable set and model family in train and test set.
+
+  The model that performed best was the random forest model trained on the objective predictors which reached an MAE of 1.43 in the training set and 4.02 in the test set indicating that on average, the prediction was off by 1.43 points and 4.02 scores respectively compared to the true scores.
+
+  This model had the following CV-tuned hyperparameters: mtry = 30, splitrule = "variance", min.node.side = 1
 
 
 ## Shiny App
