@@ -20,11 +20,15 @@ if (!requireNamespace("dplyr", quietly = TRUE)) {
 if (!requireNamespace("ggplot2", quietly = TRUE)) {
   install.packages("ggplot2")
 }
+if (!requireNamespace("writexl", quietly = TRUE)) {
+  install.packages("writexl")
+}
 
 # Load packages
 library(sf)
 library(dplyr)
 library(ggplot2)
+library(writexl)
 
 # Record the exact package versions
 renv::snapshot()
@@ -182,4 +186,15 @@ muni_sf$gm_naam   <- trimws(as.character(muni_sf$gm_naam))
 
 # change to Leaflet standard
 muni_sf   <- st_transform(muni_sf, 4326)
+
+
+######################################
+# save dataset
+
+#PC4_codes
+write_xlsx(PC4_codes, path = "C:/Users/lunardel/Downloads")
+
+#municipalities
+write_xlsx(muni_sf, path = "C:/Users/lunardel/Downloads")
+
 
