@@ -16,6 +16,33 @@ In order to reproduce the analysis, researchers can run the scripts in the Livin
 ## Data availability
 the Leefbarometer data in openly available at https://www.leefbaarometer.nl/page/Opendata#score, whereas the other datasets are available in the SANE Secure Environment of ODISSEI. To access this data files contact info@odissei-data.nl.
 
+
+## Required software and packages
+### Software
+R Studio version 4.5.3 (in SANE environment)
+R Studio version 4.6 (for Shiny Dashboard)
+Python 3.8 (for geospational analysis)
+
+### Packages
+dplyr 1.2.1
+ggplot2 4.0.3
+leaflet 2.2.3
+readr 2.2.0
+renv 1.2.3
+shiny 1.13.0
+writexl 1.5.4
+readxl 1.5.0
+stringr 1.6.0
+data.table 1.18.4
+tidyverse 2.0.0
+psych 2.5.3
+haven 2.5.5
+foreign 0.8-91
+here 1.0.2
+arrow 24.0.0
+caret 7.0-1
+doParallel 1.0.17
+
 ## Leefbarometer data 
 The Leefbarometer data provides scores for livability in the Netherlands. The data is pubicly available here: https://www.leefbaarometer.nl/page/Opendata#scores.
 We chose to work with the 2024 data. Both geospatial data and data about the livability scores were downloaded. In particular, we decided to work with PC4 level geospatial geometry. Gemeente level geospatial data was also imported in order to then provide nicer overview in the Shiny app, but it is not used in the analysis.
