@@ -1,5 +1,8 @@
 # LIVING-SICSS
 
+## DOI
+https://doi.org/10.5281/zenodo.20746330
+
 ## Step by step guide to run the script
 In order to reproduce the analysis, researchers can run the scripts in the Living-SICSS repository in the following order:
 
