@@ -23,6 +23,14 @@ if (!requireNamespace("leaflet", quietly = TRUE)) {
 if (!requireNamespace("renv", quietly = TRUE)) {
   install.packages("renv")
 }
+# readxl
+if (!requireNamespace("readxl", quietly = TRUE)) {
+  install.packages("readxl")
+}
+# readr
+if (!requireNamespace("readr", quietly = TRUE)) {
+  install.packages("readr")
+}
 
 
 ## Load libraries
@@ -32,12 +40,34 @@ library(dplyr)
 library(ggplot2)
 library(leaflet)
 library(renv)
+library(readxl)
+library(readr)
 
 ### Set working directory
 setwd("C:/Users/lunardel/Downloads")
 
-## Source data
-source("Script_SICCS.R")
+## Read data
+# scores
+PC4_codes <- readxl("PC4_codes.xlsx")
+muni_sf <- readxl("muni.xlsx")
+
+# predictions
+enet_ob <- read_csv("predictions_enet_objective_data_pc4.csv")
+enet_ob <- enet_ob[,2:4] #drop first column
+enet_ob$diff_enet_ob <- enet_ob$diff # change name
+enet_ob$PC4 <- enet_ob$pc4 #change name
+enet_sub <- read_csv("predictions_enet_subjective_data_pc4.csv")
+enet_sub <- enet_sub[,2:4] #drop first column
+enet_sub$diff_enet_sub <- enet_sub$diff
+enet_sub$PC4 <- enet_sub$pc4 #change name
+rf_ob <- read_csv("predictions_rf_objective_data_pc4.csv")
+rf_ob <- rf_ob[,2:4] #drop first column
+rf_ob$diff_rf_ob <- rf_ob$diff #change name
+rf_ob$PC4 <- rf_ob$pc4 #change name
+rf_sub <- read_csv("predictions_rf_subjective_data_pc4.csv")
+rf_sub <- rf_sub[,2:4] #drop first column
+rf_sub$diff_rf_sub <- rf_sub$diff #change name
+rf_sub$PC4 <- rf_sub$pc4 #change name
 
 ## Transform coordinates to work with leaflet
 st_geometry(PC4_codes) <- "geom"
@@ -47,16 +77,7 @@ if (st_crs(PC4_codes)$epsg != 4326) {
   PC4_codes <- st_transform(PC4_codes, 4326)
 }
 
-# Change name of score into more easily readable ones
-score_vars <- c(
-  "Livability" = "lbm",
-  "Difference from national score" = "afw",
-  "Physical environment" = "fys",
-  "Security" = "onv",
-  "Social cohesion" = "soc",
-  "Amenities" = "vrz",
-  "Housing stock" = "won"
-)
+
 
 # Get name of the main cities to map their centroids
 major_cities <- muni_sf[muni_sf$gm_naam %in% c(
@@ -78,6 +99,38 @@ major_cities <- muni_sf[muni_sf$gm_naam %in% c(
 # Get centroids on the main cities
 major_cities_centroids <- st_centroid(major_cities)
 muni_choices <- c("ALL", sort(unique(muni_sf$gm_naam)))
+
+# merge predicted scores
+PC4_codes <- PC4_codes %>% left_join(enet_ob[, c(5,4)], by = "PC4")
+PC4_codes <- PC4_codes %>% left_join(enet_sub[, c(5,4)], by = "PC4")
+PC4_codes <- PC4_codes %>% left_join(rf_ob[, c(5,4)], by = "PC4")
+PC4_codes <- PC4_codes %>% left_join(rf_sub[, c(5,4)], by = "PC4")
+
+# Change name of score into more easily readable ones
+score_vars <- c(
+  "Livability" = "lbm",
+  "Difference from national score" = "afw",
+  "Physical environment" = "fys",
+  "Security" = "onv",
+  "Social cohesion" = "soc",
+  "Amenities" = "vrz",
+  "Housing stock" = "won",
+  "Difference scores enet, ob" = "diff_enet_ob",
+  "Difference scores enet, sub" = "diff_enet_sub",
+  "Difference scores rf, ob" = "diff_rf_ob",
+  "Difference scores rf, sub" = "diff_rf_sub"
+)
+
+# Drop NA rows
+PC4_codes <- PC4_codes %>%
+  filter(!is.na(jaar))
+
+# rescale differences in score
+PC4_codes <- PC4_codes %>%
+  mutate(diff_enet_ob = -abs(diff_enet_ob), 
+         diff_enet_sub = -abs(diff_enet_sub), 
+         diff_rf_ob = -abs(diff_rf_ob), 
+         diff_rf_sub = -abs(diff_rf_sub))
 
 ## Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -130,7 +183,7 @@ server <- function(input, output, session) {
       fitBounds(3.2, 50.0, 7.3, 53.0) # centering the map
   })
   
-  # MAin map render
+  # Main map render
   observe({
     
     req(input$score)
@@ -173,9 +226,7 @@ server <- function(input, output, session) {
       vals
     ) |> lapply(htmltools::HTML)
     
-    # -------------------------
-    # DRAW MAP
-    # -------------------------
+    # Draw map
     leafletProxy("map", data = data_map) %>%
       clearShapes() %>%
       clearControls() %>%
@@ -208,10 +259,9 @@ server <- function(input, output, session) {
         position = "topright", # change place
         pal = pal,
         values = vals_raw,
-        title = input$score
+        title = names(score_vars[score_vars == input$score])
       )
   })
 }
 
 shinyApp(ui, server)
-
