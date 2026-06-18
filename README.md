@@ -24,7 +24,7 @@ Available variables:
 - security;
 - amenities;
 - social cohesion;
-- phisical environment;
+- physical environment;
 - housing stock;
 - Gemeente geometry.
 
