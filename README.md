@@ -2,6 +2,7 @@
 
 ## Step by step guide to run the script
 In order to reproduce the analysis, researchers can run the scripts in the Living-SICCS repository in the following order:
+
 0. download the project to ensure the right packages are used;
 1. Script_SICCS.R this script explores the score variables from Leefbarometer and creates datasets that are used later for the creation of the Shiny app;
 2. add here;
