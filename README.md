@@ -1,7 +1,7 @@
-# LIVING-SICCS
+# LIVING-SICSS
 
 ## Step by step guide to run the script
-In order to reproduce the analysis, researchers can run the scripts in the Living-SICCS repository in the following order:
+In order to reproduce the analysis, researchers can run the scripts in the Living-SICSS repository in the following order:
 
 0. download the project to ensure the right packages are used and get the data from https://www.leefbaarometer.nl/page/Opendata#score and the ODISSEI Safe Environment;
 1. Script_Leefbarometer.R: this script explores the score variables from Leefbarometer and creates datasets that are used later for the creation of the Shiny app;
