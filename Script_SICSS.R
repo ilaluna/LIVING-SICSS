@@ -1,4 +1,3 @@
-### Set working directory
 
 setwd("C:/Users/lunardel/Downloads")
 
@@ -192,9 +191,9 @@ muni_sf   <- st_transform(muni_sf, 4326)
 # save dataset
 
 #PC4_codes
-write_xlsx(PC4_codes, path = "C:/Users/lunardel/Downloads")
+write_xlsx(PC4_codes[,-15], path = "C:/Users/lunardel/Downloads")
 
 #municipalities
-write_xlsx(muni_sf, path = "C:/Users/lunardel/Downloads")
+#write_xlsx(muni_sf, path = "C:/Users/lunardel/Downloads")
 
 
