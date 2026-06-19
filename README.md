@@ -116,7 +116,8 @@ The following exposures were extracted:
 - NO2 exposure mean average in 2023 per PC4
 - Access to different kinds of food
 - Light exposure at night (2020, within buffer of 300, 500 and 1000m)
-- (here add rest!)
+- walkability
+- Urbanicity (scores from 2015)
 
 
 ## FIRMBAKBONE data
